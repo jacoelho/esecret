@@ -82,7 +82,9 @@ func EncryptFileInPlace(filePath string) (int, error) {
 	}
 
 	var newData bytes.Buffer
-	tmpl.Execute(&newData, nil)
+	if err = tmpl.Execute(&newData, nil); err != nil {
+		return -1, err
+	}
 
 	if err := writeFile(filePath, newData.Bytes(), fileMode); err != nil {
 		return -1, err
@@ -143,7 +145,9 @@ func DecryptFile(filePath, keydir string, machine bool) (string, error) {
 	}
 
 	var newData bytes.Buffer
-	tmpl.Execute(&newData, nil)
+	if err = tmpl.Execute(&newData, nil); err != nil {
+		return "", err
+	}
 
 	return newData.String(), nil
 }
