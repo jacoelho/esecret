@@ -1,9 +1,9 @@
 package esecret
 
 import (
-  "errors"
 	"bytes"
 	"encoding/hex"
+	"errors"
 	"fmt"
 	"io/ioutil"
 	"os"
@@ -26,7 +26,7 @@ func ExtractPublicKey(s string) ([32]byte, error) {
 	}
 
 	if len(bs) != 32 {
-	  return key, errors.New("invalid key decoded")
+		return key, errors.New("invalid key decoded")
 	}
 
 	copy(key[:], bs)
@@ -34,9 +34,9 @@ func ExtractPublicKey(s string) ([32]byte, error) {
 }
 
 func TemplateRecover() {
-  if r := recover(); r != nil {
-    fmt.Println("error parsing file")
-  }
+	if r := recover(); r != nil {
+		fmt.Println("error parsing file")
+	}
 }
 
 func EncryptFileInPlace(filePath string) (int, error) {
@@ -60,9 +60,9 @@ func EncryptFileInPlace(filePath string) (int, error) {
 	fm := template.FuncMap{
 		"public_key": func(public string) string {
 			pubkey, err = ExtractPublicKey(public)
-      if err != nil {
-        return err.Error()
-      }
+			if err != nil {
+				return err.Error()
+			}
 			encrypter = myKP.Encrypter(pubkey)
 			return fmt.Sprintf("{{ public_key \"%s\" }}", public)
 		},
@@ -75,10 +75,10 @@ func EncryptFileInPlace(filePath string) (int, error) {
 		},
 	}
 
-  defer TemplateRecover()
+	defer TemplateRecover()
 	tmpl, err := template.New("esecret").Funcs(fm).Parse(string(data))
 	if err != nil {
-    return -1, err
+		return -1, err
 	}
 
 	var newData bytes.Buffer
@@ -103,9 +103,9 @@ func DecryptFile(filePath, keydir string, machine bool) (string, error) {
 	fm := template.FuncMap{
 		"public_key": func(public string) string {
 			pubkey, err = ExtractPublicKey(public)
-      if err != nil {
-        return err.Error()
-      }
+			if err != nil {
+				return err.Error()
+			}
 			privkey, err := findPrivateKey(pubkey, keydir)
 			if err != nil {
 				panic("private key not found")
@@ -125,9 +125,9 @@ func DecryptFile(filePath, keydir string, machine bool) (string, error) {
 					panic(err)
 				}
 
-        if machine {
-				  return fmt.Sprintf("\"%s\"", string(v))
-        }
+				if machine {
+					return fmt.Sprintf("\"%s\"", string(v))
+				}
 				return fmt.Sprintf("{{ secret \"%s\" }}", string(v))
 
 			} else {
@@ -136,11 +136,11 @@ func DecryptFile(filePath, keydir string, machine bool) (string, error) {
 		},
 	}
 
-  defer TemplateRecover()
+	defer TemplateRecover()
 	tmpl, err := template.New("esecret").Funcs(fm).Parse(string(data))
 	if err != nil {
-	  return "", err
-  }
+		return "", err
+	}
 
 	var newData bytes.Buffer
 	tmpl.Execute(&newData, nil)
