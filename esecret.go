@@ -1,6 +1,7 @@
 package esecret
 
 import (
+  "errors"
 	"bytes"
 	"encoding/hex"
 	"fmt"
@@ -12,24 +13,30 @@ import (
 	"github.com/Shopify/ejson/crypto"
 )
 
-func ExtractPublicKey(s string) [32]byte {
+func ExtractPublicKey(s string) ([32]byte, error) {
 	var key [32]byte
 
 	if len(s) != 64 {
-		panic("invalid key string")
+		return key, errors.New("invalid key string")
 	}
 
 	bs, err := hex.DecodeString(strings.TrimSpace(s))
 	if err != nil {
-		return key
+		return key, err
 	}
 
 	if len(bs) != 32 {
-		panic("invalid key")
+	  return key, errors.New("invalid key decoded")
 	}
 
 	copy(key[:], bs)
-	return key
+	return key, nil
+}
+
+func TemplateRecover() {
+  if r := recover(); r != nil {
+    fmt.Println("error parsing file")
+  }
 }
 
 func EncryptFileInPlace(filePath string) (int, error) {
@@ -52,7 +59,10 @@ func EncryptFileInPlace(filePath string) (int, error) {
 	var encrypter *crypto.Encrypter
 	fm := template.FuncMap{
 		"public_key": func(public string) string {
-			pubkey = ExtractPublicKey(public)
+			pubkey, err = ExtractPublicKey(public)
+      if err != nil {
+        return err.Error()
+      }
 			encrypter = myKP.Encrypter(pubkey)
 			return fmt.Sprintf("{{ public_key \"%s\" }}", public)
 		},
@@ -65,14 +75,14 @@ func EncryptFileInPlace(filePath string) (int, error) {
 		},
 	}
 
+  defer TemplateRecover()
 	tmpl, err := template.New("esecret").Funcs(fm).Parse(string(data))
 	if err != nil {
-		panic(err)
+    return -1, err
 	}
 
 	var newData bytes.Buffer
 	tmpl.Execute(&newData, nil)
-	fmt.Println(newData.String())
 
 	if err := writeFile(filePath, newData.Bytes(), fileMode); err != nil {
 		return -1, err
@@ -92,7 +102,10 @@ func DecryptFile(filePath, keydir string, machine bool) (string, error) {
 	var decrypter *crypto.Decrypter
 	fm := template.FuncMap{
 		"public_key": func(public string) string {
-			pubkey = ExtractPublicKey(public)
+			pubkey, err = ExtractPublicKey(public)
+      if err != nil {
+        return err.Error()
+      }
 			privkey, err := findPrivateKey(pubkey, keydir)
 			if err != nil {
 				panic("private key not found")
@@ -123,10 +136,11 @@ func DecryptFile(filePath, keydir string, machine bool) (string, error) {
 		},
 	}
 
+  defer TemplateRecover()
 	tmpl, err := template.New("esecret").Funcs(fm).Parse(string(data))
 	if err != nil {
-		panic(err)
-	}
+	  return "", err
+  }
 
 	var newData bytes.Buffer
 	tmpl.Execute(&newData, nil)
