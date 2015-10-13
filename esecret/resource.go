@@ -7,12 +7,23 @@ import (
 type ctx struct {
 	publicKey       string
 	publicKeyBytes  [32]byte
+  privateKeyLoaded bool
 	privateKeyBytes [32]byte
+  keydir string
 	removeTags      bool
+  file            FileInterface
+}
+
+func newCtx(keydir string, remove bool) *ctx {
+  return &ctx{
+    keydir: keydir,
+    removeTags: remove,
+    file: &file{},
+  }
 }
 
 func (c *ctx) loadPublicKey(s string) error {
-	v, err := extractPublicKey(s)
+	v, err := extractKey(s)
 	if err != nil {
 		return err
 	}
@@ -22,13 +33,23 @@ func (c *ctx) loadPublicKey(s string) error {
 	return nil
 }
 
-func (c *ctx) loadPrivateKey(keydir string) error {
-	privkey, err := findPrivateKey(c.publicKeyBytes, keydir)
+func (c *ctx) loadPrivateKey() error {
+  if c.privateKeyLoaded {
+     return nil
+  }
+
+	privkey, err := c.file.ReadPrivateKey(c.keydir, c.publicKey)
 	if err != nil {
 		return err
 	}
 
-	c.privateKeyBytes = privkey
+  v, err := extractKey(privkey)
+  if err != nil {
+     return err
+  }
+
+  c.privateKeyLoaded = true
+  c.privateKeyBytes = v
 	return nil
 }
 

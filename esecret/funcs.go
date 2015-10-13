@@ -53,6 +53,7 @@ func (c *ctx) encrypted(item interface{}) (string, error) {
 		return "", InvalidEncrypted
 	}
 
+  c.loadPrivateKey()
 	dec, err := c.decrypt(value)
 	if err != nil {
 		return "", err

@@ -8,7 +8,7 @@ import (
 	"strings"
 )
 
-func extractPublicKey(s string) ([32]byte, error) {
+func extractKey(s string) ([32]byte, error) {
 	var key [32]byte
 
 	if len(s) != 64 {
