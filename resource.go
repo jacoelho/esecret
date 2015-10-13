@@ -5,21 +5,21 @@ import (
 )
 
 type ctx struct {
-	publicKey       string
-	publicKeyBytes  [32]byte
-  privateKeyLoaded bool
-	privateKeyBytes [32]byte
-  keydir string
-	removeTags      bool
-  file            FileInterface
+	publicKey        string
+	publicKeyBytes   [32]byte
+	privateKeyLoaded bool
+	privateKeyBytes  [32]byte
+	keydir           string
+	removeTags       bool
+	file             FileInterface
 }
 
 func newCtx(keydir string, remove bool) *ctx {
-  return &ctx{
-    keydir: keydir,
-    removeTags: remove,
-    file: &file{},
-  }
+	return &ctx{
+		keydir:     keydir,
+		removeTags: remove,
+		file:       &file{},
+	}
 }
 
 func (c *ctx) loadPublicKey(s string) error {
@@ -34,22 +34,22 @@ func (c *ctx) loadPublicKey(s string) error {
 }
 
 func (c *ctx) loadPrivateKey() error {
-  if c.privateKeyLoaded {
-     return nil
-  }
+	if c.privateKeyLoaded {
+		return nil
+	}
 
 	privkey, err := c.file.ReadPrivateKey(c.keydir, c.publicKey)
 	if err != nil {
 		return err
 	}
 
-  v, err := extractKey(privkey)
-  if err != nil {
-     return err
-  }
+	v, err := extractKey(privkey)
+	if err != nil {
+		return err
+	}
 
-  c.privateKeyLoaded = true
-  c.privateKeyBytes = v
+	c.privateKeyLoaded = true
+	c.privateKeyBytes = v
 	return nil
 }
 

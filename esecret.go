@@ -1,10 +1,10 @@
 package esecret
 
 import (
-  "os"
-  "bytes"
-  "io/ioutil"
-  "text/template"
+	"bytes"
+	"io/ioutil"
+	"os"
+	"text/template"
 )
 
 func getMode(path string) (os.FileMode, error) {
@@ -21,16 +21,16 @@ func EncryptFileInPlace(filePath string) (int, error) {
 		return -1, err
 	}
 
-  context := newCtx("", false)
+	context := newCtx("", false)
 	tmpl, err := template.New("").Funcs(context.newFuncMap()).Parse(string(data))
 	if err != nil {
-    return -1, err
+		return -1, err
 	}
 	var newdata bytes.Buffer
 	err = tmpl.Execute(&newdata, nil)
-  if err != nil {
-     return -1, err
-  }
+	if err != nil {
+		return -1, err
+	}
 
 	fileMode, err := getMode(filePath)
 	if err != nil {
@@ -50,16 +50,16 @@ func DecryptFile(filePath, keydir string, machine bool) (string, error) {
 		return "", err
 	}
 
-  context := newCtx(keydir, machine)
+	context := newCtx(keydir, machine)
 	tmpl, err := template.New("").Funcs(context.newFuncMap()).Parse(string(data))
 	if err != nil {
-    return "", err
+		return "", err
 	}
 	var newdata bytes.Buffer
 	err = tmpl.Execute(&newdata, nil)
-  if err != nil {
-     return "", err
-  }
+	if err != nil {
+		return "", err
+	}
 
-  return newdata.String(), nil
+	return newdata.String(), nil
 }
