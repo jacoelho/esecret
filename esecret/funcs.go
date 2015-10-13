@@ -4,8 +4,6 @@ import (
 	"errors"
 	"fmt"
 	"strconv"
-
-	"github.com/Shopify/ejson/crypto"
 )
 
 var (
@@ -14,78 +12,13 @@ var (
 	InvalidEncrypted = errors.New("invalid encrypted value")
 )
 
-type ctx struct {
-	publicKey       string
-	publicKeyBytes  [32]byte
-	privateKeyBytes [32]byte
-	removeTags      bool
-}
-
-func (c *ctx) LoadPublicKey(s string) error {
-	v, err := extractPublicKey(s)
-	if err != nil {
-		return err
-	}
-
-	c.publicKey = s
-	c.publicKeyBytes = v
-	return nil
-}
-
-func (c *ctx) LoadPrivateKey(keydir string) error {
-	privkey, err := findPrivateKey(c.publicKeyBytes, keydir)
-	if err != nil {
-		return err
-	}
-
-	c.privateKeyBytes = privkey
-	return nil
-}
-
-func (c *ctx) Encrypt(value string) (string, error) {
-	var kp crypto.Keypair
-
-	if err := kp.Generate(); err != nil {
-		return "", err
-	}
-
-	encrypter := kp.Encrypter(c.publicKeyBytes)
-
-	v, err := encrypter.Encrypt([]byte(value))
-	if err != nil {
-		return "", err
-	}
-
-	return string(v), nil
-}
-
-func (c *ctx) Decrypt(value string) (string, error) {
-	kp := crypto.Keypair{
-		Public:  c.publicKeyBytes,
-		Private: c.privateKeyBytes,
-	}
-
-	decrypter := kp.Decrypter()
-
-	v, err := decrypter.Decrypt([]byte(value))
-	if err != nil {
-		return "", err
-	}
-
-	if c.removeTags {
-		return string(v), nil
-	}
-
-	return fmt.Sprintf("{{ secret %s }}", string(v)), nil
-}
-
 func (c *ctx) public_key(item interface{}) (string, error) {
 	switch item := item.(type) {
 	case string:
-		if err := c.LoadPublicKey(item); err != nil {
+		if err := c.loadPublicKey(item); err != nil {
 			return "", err
 		}
-		return fmt.Sprintf("{{ public_key %s }}", item), nil
+		return fmt.Sprintf("{{ public_key \"%s\" }}", item), nil
 	}
 	return "", InvalidPublicKey
 }
@@ -102,11 +35,11 @@ func (c *ctx) secret(item interface{}) (string, error) {
 		return "", InvalidSecret
 	}
 
-	enc, err := c.Encrypt(value)
+	enc, err := c.encrypt(value)
 	if err != nil {
 		return "", err
 	}
-	return fmt.Sprintf("{{ encrypted %s }}", enc), nil
+	return fmt.Sprintf("{{ encrypted \"%s\" }}", enc), nil
 }
 
 func (c *ctx) encrypted(item interface{}) (string, error) {
@@ -120,7 +53,7 @@ func (c *ctx) encrypted(item interface{}) (string, error) {
 		return "", InvalidEncrypted
 	}
 
-	dec, err := c.Decrypt(value)
+	dec, err := c.decrypt(value)
 	if err != nil {
 		return "", err
 	}
