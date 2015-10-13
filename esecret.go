@@ -13,25 +13,6 @@ import (
 	"github.com/Shopify/ejson/crypto"
 )
 
-func ExtractPublicKey(s string) ([32]byte, error) {
-	var key [32]byte
-
-	if len(s) != 64 {
-		return key, errors.New("invalid key string")
-	}
-
-	bs, err := hex.DecodeString(strings.TrimSpace(s))
-	if err != nil {
-		return key, err
-	}
-
-	if len(bs) != 32 {
-		return key, errors.New("invalid key decoded")
-	}
-
-	copy(key[:], bs)
-	return key, nil
-}
 
 func TemplateRecover() {
 	if r := recover(); r != nil {
