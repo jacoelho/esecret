@@ -1,8 +1,8 @@
 package esecret
 
 import (
-	"errors"
 	"fmt"
+	"errors"
 	"strconv"
 )
 
@@ -63,7 +63,7 @@ func (c *ctx) encrypted(item interface{}) (string, error) {
 		return dec, nil
 	}
 
-	return fmt.Sprintf("{{ secret %s }}", dec), nil
+	return fmt.Sprintf("{{ secret \"%s\" }}", dec), nil
 }
 
 func (c *ctx) newFuncMap() map[string]interface{} {

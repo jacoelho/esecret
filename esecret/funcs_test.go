@@ -68,8 +68,8 @@ func TestInvalidPublicKey(t *testing.T) {
 	})
 }
 
-func TestEncrypted(t *testing.T) {
-  const templateText = `{{ public_key "51565c4492373021baf9b1370b6ea4652afdd443d59991b855c59610943d8647"  }}\n{{ encrypted "EJ[1:a+YQYN2SOgsJdOcl+O3zw4ZhGB9ig8dg0t1esbQBPCg=:mSv6DXTtgVoYP/Lpn0XJOGu2DDmF4KHL:wsOFWAbqG9tqLI68mjF9mwxTvg==]"  }}`
+func TestEncryptedSuccess(t *testing.T) {
+  const templateText = `{{ public_key "51565c4492373021baf9b1370b6ea4652afdd443d59991b855c59610943d8647" }}\n{{ encrypted "EJ[1:a+YQYN2SOgsJdOcl+O3zw4ZhGB9ig8dg0t1esbQBPCg=:mSv6DXTtgVoYP/Lpn0XJOGu2DDmF4KHL:wsOFWAbqG9tqLI68mjF9mwxTvg==]"  }}`
 
 	c := newMockContext()
 	tmpl, err := template.New("test").Funcs(c.newFuncMap()).Parse(templateText)
@@ -79,7 +79,7 @@ func TestEncrypted(t *testing.T) {
 
 	var data bytes.Buffer
 	err = tmpl.Execute(&data, nil)
-	Convey("should fail to decrypt", t, func() {
+	Convey("should decrypt with success", t, func() {
 		So(err, ShouldBeNil)
 		So(data.String(), ShouldContainSubstring, "foo")
 	})
