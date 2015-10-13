@@ -1,11 +1,11 @@
 package esecret
 
 import (
-  "fmt"
-  "errors"
-  "strings"
-  "io/ioutil"
-  "encoding/hex"
+	"encoding/hex"
+	"errors"
+	"fmt"
+	"io/ioutil"
+	"strings"
 )
 
 func extractPublicKey(s string) ([32]byte, error) {
