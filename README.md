@@ -2,7 +2,7 @@
 
 `esecret` is a utility for managing a collection of secrets in source control. 
 
-The major difference is the file format support, any file is supported, only tags para parsed.
+The major difference is the file format support, any file is supported, only tags are parsed.
 
 This tool is derived from [`ejson`](https://github.com/Shopify/ejson)
 
