@@ -87,7 +87,7 @@ production:
 For a deployment:
 ```
 $ esecret decrypt secrets.yml --machine
-# {{ public_key "9332c940ec35ad08a6fc0d7286d19e3a01bfe33202f26df85e30a13fd828257b" }}
+
 production:
   database_password: "1234password"
 ```
