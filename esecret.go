@@ -21,7 +21,7 @@ func EncryptFileInPlace(filePath string) (int, error) {
 		return -1, err
 	}
 
-	context := newCtx("", false)
+	context := newCtx("", false, false)
 	tmpl, err := template.New("").Funcs(context.newFuncMap()).Parse(string(data))
 	if err != nil {
 		return -1, err
@@ -50,7 +50,7 @@ func DecryptFile(filePath, keydir string, machine bool) (string, error) {
 		return "", err
 	}
 
-	context := newCtx(keydir, machine)
+	context := newCtx(keydir, true, machine)
 	tmpl, err := template.New("").Funcs(context.newFuncMap()).Parse(string(data))
 	if err != nil {
 		return "", err

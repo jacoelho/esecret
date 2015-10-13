@@ -11,14 +11,16 @@ type ctx struct {
 	privateKeyBytes  [32]byte
 	keydir           string
 	removeTags       bool
+	decryptFile      bool
 	file             FileInterface
 }
 
-func newCtx(keydir string, remove bool) *ctx {
+func newCtx(keydir string, decrypt, remove bool) *ctx {
 	return &ctx{
-		keydir:     keydir,
-		removeTags: remove,
-		file:       &file{},
+		keydir:      keydir,
+		decryptFile: decrypt,
+		removeTags:  remove,
+		file:        &file{},
 	}
 }
 

@@ -53,6 +53,10 @@ func (c *ctx) encrypted(item interface{}) (string, error) {
 		return "", InvalidEncrypted
 	}
 
+	if !c.decryptFile {
+		return fmt.Sprintf("{{ encrypted \"%s\" }}", value), nil
+	}
+
 	c.loadPrivateKey()
 	dec, err := c.decrypt(value)
 	if err != nil {
