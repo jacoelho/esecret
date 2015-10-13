@@ -18,6 +18,11 @@ func (c *ctx) public_key(item interface{}) (string, error) {
 		if err := c.loadPublicKey(item); err != nil {
 			return "", err
 		}
+
+		if c.removeTags {
+			return "", nil
+		}
+
 		return fmt.Sprintf("{{ public_key \"%s\" }}", item), nil
 	}
 	return "", InvalidPublicKey
