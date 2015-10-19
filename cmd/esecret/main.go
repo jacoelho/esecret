@@ -47,13 +47,17 @@ func main() {
 					Name:  "o",
 					Usage: "print output to the provided file, rather than stdout",
 				},
+				cli.StringFlag{
+					Name:  "private-key",
+					Usage: "private key to use",
+				},
 				cli.BoolFlag{
 					Name:  "machine",
 					Usage: "output without esecret tags",
 				},
 			},
 			Action: func(c *cli.Context) {
-				if err := decryptAction(c.Args(), c.GlobalString("keydir"), c.String("o"), c.Bool("machine")); err != nil {
+				if err := decryptAction(c.Args(), c.GlobalString("keydir"), c.String("o"), c.String("private-key"), c.Bool("machine")); err != nil {
 					fmt.Println("Decryption failed:", err)
 					os.Exit(1)
 				}

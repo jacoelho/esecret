@@ -21,7 +21,7 @@ func EncryptFileInPlace(filePath string) (int, error) {
 		return -1, err
 	}
 
-	context := newCtx("", false, false)
+	context := newCtx(ctxConfig{decrypt: false, removeTags: false})
 	tmpl, err := template.New("").Funcs(context.newFuncMap()).Parse(string(data))
 	if err != nil {
 		return -1, err
@@ -44,13 +44,19 @@ func EncryptFileInPlace(filePath string) (int, error) {
 	return len(newdata.Bytes()), nil
 }
 
-func DecryptFile(filePath, keydir string, machine bool) (string, error) {
+func DecryptFile(filePath, keydir, privateKey string, remove bool) (string, error) {
 	data, err := ioutil.ReadFile(filePath)
 	if err != nil {
 		return "", err
 	}
 
-	context := newCtx(keydir, true, machine)
+	context := newCtx(ctxConfig{
+		keydir:     keydir,
+		privateKey: privateKey,
+		decrypt:    true,
+		removeTags: remove,
+	},
+	)
 	tmpl, err := template.New("").Funcs(context.newFuncMap()).Parse(string(data))
 	if err != nil {
 		return "", err

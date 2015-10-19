@@ -23,11 +23,11 @@ func encryptAction(args []string) error {
 	return nil
 }
 
-func decryptAction(args []string, keydir, outFile string, machine bool) error {
+func decryptAction(args []string, keydir, outFile, private string, machine bool) error {
 	if len(args) != 1 {
 		return fmt.Errorf("exactly one file path must be given")
 	}
-	decrypted, err := esecret.DecryptFile(args[0], keydir, machine)
+	decrypted, err := esecret.DecryptFile(args[0], keydir, private, machine)
 	if err != nil {
 		return err
 	}

@@ -8,6 +8,7 @@ type ctx struct {
 	publicKey        string
 	publicKeyBytes   [32]byte
 	privateKeyLoaded bool
+	privateKey       string
 	privateKeyBytes  [32]byte
 	keydir           string
 	removeTags       bool
@@ -15,11 +16,19 @@ type ctx struct {
 	file             FileInterface
 }
 
-func newCtx(keydir string, decrypt, remove bool) *ctx {
+type ctxConfig struct {
+	keydir     string
+	privateKey string
+	decrypt    bool
+	removeTags bool
+}
+
+func newCtx(config ctxConfig) *ctx {
 	return &ctx{
-		keydir:      keydir,
-		decryptFile: decrypt,
-		removeTags:  remove,
+		keydir:      config.keydir,
+		privateKey:  config.privateKey,
+		decryptFile: config.decrypt,
+		removeTags:  config.removeTags,
 		file:        &file{},
 	}
 }
@@ -40,12 +49,21 @@ func (c *ctx) loadPrivateKey() error {
 		return nil
 	}
 
-	privkey, err := c.file.ReadPrivateKey(c.keydir, c.publicKey)
-	if err != nil {
-		return err
+	if len(c.privateKey) == 0 {
+		privkey, err := c.file.ReadPrivateKey(c.keydir, c.publicKey)
+		if err != nil {
+			return err
+		}
+		v, err := extractKey(privkey)
+		if err != nil {
+			return err
+		}
+		c.privateKeyLoaded = true
+		c.privateKeyBytes = v
+		return nil
 	}
 
-	v, err := extractKey(privkey)
+	v, err := extractKey(c.privateKey)
 	if err != nil {
 		return err
 	}
